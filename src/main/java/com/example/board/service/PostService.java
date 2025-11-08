@@ -4,6 +4,7 @@ import com.example.board.domain.Member;
 import com.example.board.domain.Post;
 import com.example.board.dto.PostCreateRequest;
 import com.example.board.dto.PostResponse;
+import com.example.board.dto.PostUpdateRequest;
 import com.example.board.repository.MemberRepository;
 import com.example.board.repository.PostRepository;
 import jakarta.transaction.Transactional;
@@ -74,7 +75,7 @@ public class PostService {
      * 게시물 수정
      */
     @Transactional
-    public PostResponse updatePost(Long id, PostCreateRequest request) {
+    public PostResponse updatePost(Long id, PostUpdateRequest request) {
         log.info("============= 게시물 수정 서비스 진입 =============");
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("게시물이 존재하지 않습니다.")

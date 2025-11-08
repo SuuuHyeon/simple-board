@@ -3,8 +3,10 @@ package com.example.board.controller;
 
 import com.example.board.dto.PostCreateRequest;
 import com.example.board.dto.PostResponse;
+import com.example.board.dto.PostUpdateRequest;
 import com.example.board.service.PostService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,7 @@ public class PostController {
      * 게시물 생성
      */
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest request, @RequestParam Long memberId) {
+    public ResponseEntity<PostResponse> createPost(@RequestParam Long memberId, @Valid @RequestBody PostCreateRequest request) {
 
         PostResponse response = postService.createPost(request, memberId);
 
@@ -57,7 +59,7 @@ public class PostController {
      * 게시물 수정
      */
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostCreateRequest request) {
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostUpdateRequest request) {
         log.info("============= 게시물 수정 컨트롤러 진입 =============");
         PostResponse postResponse = postService.updatePost(id, request);
 
