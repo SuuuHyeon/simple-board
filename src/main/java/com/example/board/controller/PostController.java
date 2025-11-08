@@ -6,6 +6,7 @@ import com.example.board.dto.PostResponse;
 import com.example.board.service.PostService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/posts")
@@ -24,9 +26,9 @@ public class PostController {
      * 게시물 생성
      */
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest request) {
+    public ResponseEntity<PostResponse> createPost(@RequestBody PostCreateRequest request, @RequestParam Long memberId) {
 
-        PostResponse response = postService.createPost(request);
+        PostResponse response = postService.createPost(request, memberId);
 
         return ResponseEntity.created(URI.create("/posts" + response.getId())).body(response);
     }
@@ -56,6 +58,7 @@ public class PostController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody PostCreateRequest request) {
+        log.info("============= 게시물 수정 컨트롤러 진입 =============");
         PostResponse postResponse = postService.updatePost(id, request);
 
         return ResponseEntity.ok(postResponse);
