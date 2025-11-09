@@ -22,6 +22,9 @@ public class MemberController {
     private final MemberService memberService;
 
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(/*@Valid*/ @RequestBody MemberSignupRequest request) {
 
@@ -29,4 +32,6 @@ public class MemberController {
 
         return ResponseEntity.created(URI.create("/members/" + memberId)).build();
     }
+
+
 }
