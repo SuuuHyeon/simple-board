@@ -10,6 +10,7 @@ import com.example.board.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -23,6 +24,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final ModelMapper modelMapper;
 
     /**
      * 게시물 생성
@@ -35,12 +37,9 @@ public class PostService {
                 () -> new IllegalArgumentException("회원정보를 찾을 수 없습니다.")
         );
 
-        // post 생성
-        Post post = new Post();
-
-        // 값 세팅
-        post.setTitle(request.getTitle());
-        post.setContent(request.getContent());
+        // modelMapper 적용
+        Post post = modelMapper.map(request, Post.class);
+        // member 필드가 없으므로 따로 주입
         post.setMember(member);
 
         // db 저장
