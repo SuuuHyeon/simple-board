@@ -1,8 +1,10 @@
 package com.example.board.controller;
 
 
+import com.example.board.dto.MemberLoginRequest;
 import com.example.board.dto.MemberResponse;
 import com.example.board.dto.MemberSignupRequest;
+import com.example.board.dto.TokenResponse;
 import com.example.board.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,13 @@ public class MemberController {
         Long memberId = memberService.signup(request);
 
         return ResponseEntity.created(URI.create("/members/" + memberId)).build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@RequestBody MemberLoginRequest request) {
+        TokenResponse tokenResponse = memberService.login(request);
+
+        return ResponseEntity.ok(tokenResponse);
     }
 
 

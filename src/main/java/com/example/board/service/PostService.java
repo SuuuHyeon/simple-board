@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -30,11 +31,12 @@ public class PostService {
      * 게시물 생성
      */
     @Transactional
-    public PostResponse createPost(PostCreateRequest request, Long memberId) {
+    public PostResponse createPost(PostCreateRequest request, Principal principal) {
 
-        // 멤버 먼저 찾기
-        Member member = memberRepository.findById(memberId).orElseThrow(
-                () -> new IllegalArgumentException("회원정보를 찾을 수 없습니다.")
+        String email = principal.getName();     // principl에서 email 값 추출
+
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
         );
 
         // modelMapper 적용
@@ -74,16 +76,18 @@ public class PostService {
      * 게시물 수정
      */
     @Transactional
-    public PostResponse updatePost(Long id, PostUpdateRequest request) {
+    public PostResponse updatePost(Long id, PostUpdateRequest request, Principal principal) {
+
+
         log.info("============= 게시물 수정 서비스 진입 =============");
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("게시물이 존재하지 않습니다.")
         );
 
+        if (!post.getMember().getEmail().equals(principal.getName())) {
+            throw new IllegalArgumentException("게시물 수정 권한이 없습니다.");
+        }
         //  JPA의 변경 감지 기능으로 자동으로 저장됨 (save 안 해도 됨)
-
-//        post.setTitle(request.getTitle());
-//        post.setContent(request.getContent());
 
         // -> null값 처리
         if (request.getTitle() != null && request.getTitle().isBlank())

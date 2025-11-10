@@ -17,3 +17,7 @@ spring:
       hibernate:
         show_sql: true      # JPA가 생성하는 SQL을 로그로 보여줌
         format_sql: true    # SQL 보기 좋게 포맷팅
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  expiration-ms: 3600000

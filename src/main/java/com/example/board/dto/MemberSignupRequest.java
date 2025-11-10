@@ -10,7 +10,7 @@ import lombok.Setter;
 public class MemberSignupRequest {
 
     @NotEmpty(message = "이메일은 필수입니다.")
-    @Email      ///  TODO: 추후 고도화(제대로 못 잡음)
+    @Email      ///  TODO: 추후 조건 고도화(제대로 못 잡음)
     private String email;
 
     @NotEmpty(message = "비밀번호는 필수입니다.")

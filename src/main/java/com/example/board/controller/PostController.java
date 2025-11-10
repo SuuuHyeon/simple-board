@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -28,9 +29,9 @@ public class PostController {
      * 게시물 생성
      */
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(@RequestParam Long memberId, @Valid @RequestBody PostCreateRequest request) {
+    public ResponseEntity<PostResponse> createPost(/*@RequestParam Long memberId*/@Valid @RequestBody PostCreateRequest request, Principal principal) {
 
-        PostResponse response = postService.createPost(request, memberId);
+        PostResponse response = postService.createPost(request, principal);
 
         return ResponseEntity.created(URI.create("/posts" + response.getId())).body(response);
     }
@@ -59,9 +60,10 @@ public class PostController {
      * 게시물 수정
      */
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostUpdateRequest request) {
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @Valid @RequestBody PostUpdateRequest request, Principal principal) {
         log.info("============= 게시물 수정 컨트롤러 진입 =============");
-        PostResponse postResponse = postService.updatePost(id, request);
+
+        PostResponse postResponse = postService.updatePost(id, request, principal);
 
         return ResponseEntity.ok(postResponse);
     }
