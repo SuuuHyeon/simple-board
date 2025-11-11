@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.security.Principal;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class MemberService {
     private final RefreshTokenRepository refreshTokenRepository;
 
 
-    // 회원가입
+    /// 회원가입
     @Transactional
     public Long signup(MemberSignupRequest request) {
         if (memberRepository.existsByEmail(request.getEmail())) {
@@ -51,7 +53,7 @@ public class MemberService {
 
 
     @Transactional
-    // 로그인
+    /// 로그인
     public TokenResponse login(MemberLoginRequest request) {
         Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException("가입되지 않은 이메일입니다.")
@@ -80,8 +82,8 @@ public class MemberService {
     }
 
 
+    /// 토큰 재발급 메서드
     @Transactional
-    // 토큰 재발급 메서드
     public TokenResponse reissue(TokenReissueRequest request) {
 
         String refreshTokenValue = request.getRefreshToken();
@@ -107,6 +109,25 @@ public class MemberService {
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .build();
+    }
+
+
+    /**
+     * 로그아웃 메서드
+     */
+    @Transactional
+    public void logout(Principal principal) {
+        String email = principal.getName(); // 사용자
+
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
+        );
+
+        RefreshToken refreshToken = refreshTokenRepository.findByMemberId(member.getId()).orElseThrow(
+                () -> new IllegalArgumentException("이미 로그아웃된 사용자입니다.")
+        );
+
+        refreshTokenRepository.delete(refreshToken);
     }
 
 }

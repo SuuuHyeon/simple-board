@@ -53,6 +53,7 @@ public class JwtTokenProvider {
 //        return createdToken;
 //    }
 
+    /// 엑세스 토큰 생성
     public String createAccessToken(String email, Long memberId) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + accessTokenValidityInMs);
@@ -66,6 +67,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /// 리프레쉬 토큰 생성
     public String createRefreshToken() {
         long now = (new Date()).getTime();
         Date validity = new Date(now + refreshTokenValidityInMs);

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/members")
@@ -54,5 +55,15 @@ public class MemberController {
         TokenResponse tokenResponse = memberService.reissue(request);
 
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    /**
+     * 로그아웃
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Principal principal) {
+        memberService.logout(principal);
+
+        return ResponseEntity.noContent().build();
     }
 }
