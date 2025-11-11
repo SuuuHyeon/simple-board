@@ -48,7 +48,7 @@ public class PostService {
         Post savedPost = postRepository.save(post);
 
         // Postresponse 형태로 반환
-        return new PostResponse(savedPost);
+        return PostResponse.fromEntity(savedPost);
     }
 
     /**
@@ -60,7 +60,7 @@ public class PostService {
                 () -> new IllegalArgumentException("존재하지 않는 게시물입니다.") // 에러 처리
         );
 
-        return new PostResponse(post);
+        return PostResponse.fromEntity(post);
     }
 
     /**
@@ -69,7 +69,7 @@ public class PostService {
     public List<PostResponse> getAllPosts() {
         List<Post> posts = postRepository.findAll();
 
-        return posts.stream().map(PostResponse::new).toList();
+        return posts.stream().map(PostResponse::fromEntity).toList();
     }
 
     /**
@@ -89,13 +89,12 @@ public class PostService {
         }
         //  JPA의 변경 감지 기능으로 자동으로 저장됨 (save 안 해도 됨)
 
-        // -> null값 처리
-        if (request.getTitle() != null && request.getTitle().isBlank())
-            post.setTitle(request.getTitle());
-        if (request.getContent() != null && request.getContent().isBlank())
-            post.setContent(request.getContent());
+        // 수정 메서드 호출
+        post.updatePost(request.getTitle(), request.getContent());
 
-        return new PostResponse(post);
+        // JPA 변경 감지로 save 할 필요 없음
+
+        return PostResponse.fromEntity(post);
     }
 
     /**

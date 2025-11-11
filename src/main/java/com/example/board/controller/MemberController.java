@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 
+import com.example.board.domain.TokenReissueRequest;
 import com.example.board.dto.MemberLoginRequest;
 import com.example.board.dto.MemberResponse;
 import com.example.board.dto.MemberSignupRequest;
@@ -35,6 +36,9 @@ public class MemberController {
         return ResponseEntity.created(URI.create("/members/" + memberId)).build();
     }
 
+    /**
+     * 로그인
+     */
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody MemberLoginRequest request) {
         TokenResponse tokenResponse = memberService.login(request);
@@ -42,5 +46,13 @@ public class MemberController {
         return ResponseEntity.ok(tokenResponse);
     }
 
+    /**
+     * 토큰 재발급
+     */
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponse> reissue(@RequestBody TokenReissueRequest request) {
+        TokenResponse tokenResponse = memberService.reissue(request);
 
+        return ResponseEntity.ok(tokenResponse);
+    }
 }

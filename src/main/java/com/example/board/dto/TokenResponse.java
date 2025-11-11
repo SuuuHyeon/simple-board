@@ -1,14 +1,14 @@
 package com.example.board.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
+@Getter
+@Builder
 public class TokenResponse {
 
     private String accessToken;
+    private String refreshToken;
 
-    public TokenResponse(String accessToken) {
-        this.accessToken = accessToken;
-    }
 }

@@ -3,7 +3,6 @@ package com.example.board.config.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
 
@@ -25,32 +22,59 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private final SecretKey key;
-    private final long tokenValidityInMilliseconds;
+    private final long accessTokenValidityInMs;
+    private final long refreshTokenValidityInMs;
 
     /// yml에서 설정 값 주입
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiration-ms}") long tokenValidityInMilliseconds
+            @Value("${jwt.access-token-expiration-ms}") long accessTokenValidityInMs,
+            @Value("${jwt.refresh-token-expiration-ms}") long refreshTokenValidityInMs
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);    // Base64로 인코딩된 비밀 키를 디코딩 후 'Key' 객체로 변환
         this.key = Keys.hmacShaKeyFor(keyBytes);                // HMAC-SHA 알고리즘으로 Key 생성
-        this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
+        this.accessTokenValidityInMs = accessTokenValidityInMs;
+        this.refreshTokenValidityInMs = refreshTokenValidityInMs;
     }
 
-    /// 토근 생성
-    public String createToken(String email, Long memberId) {
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+//    /// 토근 생성
+//    public String createToken(String email, Long memberId) {
+//        long now = (new Date()).getTime();
+//        Date validity = new Date(now + this.accessTokenValidityInMs);
+//
+//        String createdToken = Jwts.builder()
+//                .subject(email)
+//                .claim("id", memberId)
+//                .issuedAt(new Date(now))
+//                .expiration(validity)
+//                .signWith(key)
+//                .compact();
+//        log.info("createdToken: {}", createdToken);
+//        return createdToken;
+//    }
 
-        String createdToken = Jwts.builder()
+    public String createAccessToken(String email, Long memberId) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + accessTokenValidityInMs);
+
+        return Jwts.builder()
                 .subject(email)
                 .claim("id", memberId)
                 .issuedAt(new Date(now))
                 .expiration(validity)
                 .signWith(key)
                 .compact();
-        log.info("createdToken: {}", createdToken);
-        return createdToken;
+    }
+
+    public String createRefreshToken() {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + refreshTokenValidityInMs);
+
+        return Jwts.builder()
+                .issuedAt(new Date(now))
+                .expiration(validity)
+                .signWith(key)
+                .compact();
     }
 
 

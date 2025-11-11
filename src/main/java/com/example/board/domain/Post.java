@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor
 public class Post {
 
@@ -24,4 +24,25 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    // 게시물 업데이트 메서드
+    public void updatePost(String newTitle, String newContent) {
+
+        // null 값 처리
+        if (newTitle != null && !newTitle.isBlank()) {
+            this.title = newTitle;
+        }
+        if (newContent != null && !newContent.isBlank()) {
+            this.content = newContent;
+        }
+
+
+    }
+
+    public void setMember(Member member) {
+        if (this.member != null) {
+            throw new IllegalArgumentException("작성자를 수정할 수 없습니다.");
+        }
+        this.member = member;
+    }
 }
