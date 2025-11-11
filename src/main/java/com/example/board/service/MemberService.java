@@ -33,10 +33,12 @@ public class MemberService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        Member member = new Member();
-        member.setEmail(request.getEmail());
-        member.setPassword(passwordEncoder.encode(request.getPassword())); // 패스워드 암호화 추가
-        member.setNickname(request.getNickname());
+        // 엔티티 noargsconstructor 어노테이션 추가로 인한 수정사항
+        Member member = new Member(
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getNickname()
+        );
 
         Member savedMember = memberRepository.save(member);
 

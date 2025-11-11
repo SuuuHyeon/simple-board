@@ -2,7 +2,9 @@ package com.example.board.domain;
 
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 @Entity
 @Getter @Setter
 @Table(name = "members")
-
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
 
     @Id
@@ -30,4 +32,10 @@ public class Member {
     @Column
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) /// TODO: 더 알아보기
     private List<Post> posts;
+
+    public Member(String email, String password, String nickname) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+    }
 }

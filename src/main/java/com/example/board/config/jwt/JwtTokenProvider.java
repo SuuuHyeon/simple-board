@@ -1,6 +1,7 @@
 package com.example.board.config.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -64,16 +65,23 @@ public class JwtTokenProvider {
         String email = claims.getSubject();     // 생성 때 넣었던 email
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");   // (임시)
 
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                email, "", Collections.singletonList(authority)
+        );
+
+        log.info("토큰 검증 / 추출: {}", usernamePasswordAuthenticationToken);
+
         // email을 principal로 사용
         ///  TODO: 다시보기
-        return new UsernamePasswordAuthenticationToken(email, "", Collections.singletonList(authority));
+        return usernamePasswordAuthenticationToken;
     }
 
 
     /// 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().verifyWith(this.key).build().parseSignedClaims(token);
+            Jws<Claims> claimsJws = Jwts.parser().verifyWith(this.key).build().parseSignedClaims(token);
+            log.info("토큰 유효성 검사: {}", claimsJws.toString());
             return true;
         } catch (Exception e) {
             return false;

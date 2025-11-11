@@ -37,15 +37,21 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(
-                                        // 해당 주소는 열어주기
-                                        "/members/login",
-                                        "/members/signup",
-                                        "/swagger-ui/**",
-                                        "/v3/api-docs/**"
-                                ).permitAll()
+
+                        /// 임시로 모두 허용
+//                        auth.requestMatchers(
+//                                         해당 주소는 열어주기
+//                                        "/members/login",
+//                                        "/members/signup",
+//                                        "/swagger-ui.html",
+//                                        "/swagger-ui/**",
+//                                        "/v3/api-docs/**",
+//                                ).permitAll()
                                 // 나머지 주소는 인증된 멤버만 출입 가능
-                                .anyRequest().authenticated()
+                                auth.anyRequest().permitAll()
+
+
+
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); /// TODO: 다시보기
 
