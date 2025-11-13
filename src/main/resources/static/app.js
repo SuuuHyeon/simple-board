@@ -41,6 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const postList = document.getElementById('post-list');
     const loadPostsButton = document.getElementById('load-posts-button');
 
+
+    // [⭐️⭐️⭐️ 추가] 페이지네이션 상태
+    let currentPage = 0; // 현재 페이지 (0부터 시작)
+    const PAGE_SIZE = 5; // 한 페이지에 5개씩
+
+    // [⭐️ 추가] 페이지네이션 DOM 캐싱
+    const paginationControls = document.getElementById('pagination-controls');
+
     // --- 2. 핵심 로직: "인증 헤더가 포함된 fetch" ---
 
     /**
@@ -197,18 +205,26 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const loadPosts = async () => {
         try {
-            // [⭐️ 핵심] '인증된 fetch' 사용
-            const response = await fetchWithAuth(`${API_BASE_URL}/posts`, {
-                method: 'GET'
-            });
+            // [⭐️ 변경] 쿼리 파라미터로 'page', 'size', 'sort' 전달
+            const response = await fetchWithAuth(
+                `${API_BASE_URL}/posts?page=${currentPage}&size=${PAGE_SIZE}&sort=id,desc`, {
+                    method: 'GET'
+                });
 
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || '게시글 로딩 실패');
             }
 
-            const posts = await response.json();
-            displayPosts(posts); // 화면에 게시글 그리기
+            // const posts = await response.json();
+            // [⭐️ 변경] 응답이 List가 아닌 Page '객체'임
+            const pageData = await response.json();
+            displayPosts(pageData.content); // 화면에 게시글 그리기
+
+            // 추가: 페이지네이션 렌더링 (paginationControls가 존재하면 호출)
+            if (typeof displayPagination === 'function' && paginationControls) {
+                displayPagination(pageData);
+            }
 
         } catch (error) {
             // fetchWithAuth에서 재발급 실패 시 에러가 여기서 잡힘
@@ -452,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPostsButton.addEventListener('click', loadPosts);
     updateForm.addEventListener('submit', handleUpdatePost); // [⭐️ 추가] 수정 폼 '저장' 이벤트
 
+
     postList.addEventListener('click', (e) => {
         // e.target은 '내가 실제로 클릭한 요소'
 
@@ -469,6 +486,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // [⭐️⭐️⭐️ 추가] 페이지네이션 버튼 이벤트 위임
+    paginationControls.addEventListener('click', (e) => {
+        e.preventDefault(); // a 태그의 기본 동작(페이지 이동) 방지
+
+        // 클릭된 요소가 .page-link 클래스를 가졌고, data-page 속성이 있다면
+        if (e.target.classList.contains('page-link') && e.target.dataset.page) {
+            const page = parseInt(e.target.dataset.page); // 0-based
+            if (page >= 0 && page < 999) { // (간단한 유효성 검사)
+                currentPage = page; // '현재 페이지' 상태 변경
+                loadPosts(); // 해당 페이지로 다시 로드
+            }
+        }
+    });
+
     // [⭐️ 핵심] 페이지 로드 시, 'RefreshToken'이 있으면 "자동 로그인 (재발급)" 시도
     if (refreshToken) {
         console.log('기존 RefreshToken 발견. 자동 재발급 시도...');
@@ -483,4 +514,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    /**
+     * [⭐️⭐️⭐️ 추가] 페이지네이션 버튼을 그리는 함수
+     */
+    const displayPagination = (pageData) => {
+        paginationControls.innerHTML = ''; // 버튼 영역 초기화
+
+        const totalPages = pageData.totalPages; // 총 페이지 수
+        const currentPageNumber = pageData.number; // 현재 페이지 번호 (0-based)
+
+        // '이전' 버튼
+        const prevLi = document.createElement('li');
+        prevLi.className = `page-item ${pageData.first ? 'disabled' : ''}`; // 첫 페이지면 'disabled'
+        prevLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPageNumber - 1}">이전</a>`;
+        paginationControls.appendChild(prevLi);
+
+        // 페이지 번호 버튼 (최대 5개만 보이게 간단히 처리)
+        let startPage = Math.max(0, currentPageNumber - 2);
+        let endPage = Math.min(totalPages - 1, currentPageNumber + 2);
+
+        if (currentPageNumber < 2) {
+            endPage = Math.min(totalPages - 1, 4);
+        }
+        if (currentPageNumber > totalPages - 3) {
+            startPage = Math.max(0, totalPages - 5);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageLi = document.createElement('li');
+            pageLi.className = `page-item ${i === currentPageNumber ? 'active' : ''}`; // 현재 페이지면 'active'
+            pageLi.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i + 1}</a>`; // (i + 1)은 사용자에게 보여줄 숫자
+            paginationControls.appendChild(pageLi);
+        }
+
+        // '다음' 버튼
+        const nextLi = document.createElement('li');
+        nextLi.className = `page-item ${pageData.last ? 'disabled' : ''}`; // 마지막 페이지면 'disabled'
+        nextLi.innerHTML = `<a class="page-link" href="#" data-page="${currentPageNumber + 1}">다음</a>`;
+        paginationControls.appendChild(nextLi);
+    };
 });

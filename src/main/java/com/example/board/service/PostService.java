@@ -11,6 +11,8 @@ import com.example.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,10 +64,12 @@ public class PostService {
     /**
      * 게시물 조회 (전체)
      */
-    public List<PostResponse> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
+    public Page<PostResponse> getAllPosts(Pageable pageable) {
+//        List<Post> posts = postRepository.findAll();
+        Page<Post> postPage = postRepository.findAll(pageable);
 
-        return posts.stream().map(PostResponse::fromEntity).toList();
+//        return posts.stream().map(PostResponse::fromEntity).toList();
+        return postPage.map(PostResponse::fromEntity);
     }
 
     /**
@@ -97,10 +101,14 @@ public class PostService {
      * 게시물 삭제
      */
     @Transactional
-    public void deletePost(Long id) {
+    public void deletePost(Long id, Principal principal) {
         Post post = postRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("게시물이 존재하지 않습니다.")
         );
+
+        if (!post.getMember().getEmail().equals(principal.getName())) {
+            throw new IllegalArgumentException("게시물 삭제 권한이 없습니다.");
+        }
 
         postRepository.delete(post);
     }

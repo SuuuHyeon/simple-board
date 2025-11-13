@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -50,10 +52,10 @@ public class PostController {
      * 게시물 조회 (리스트)
      */
     @GetMapping
-    public ResponseEntity<List<PostResponse>> getAllPosts() {
-        List<PostResponse> allPosts = postService.getAllPosts();
-
-        return ResponseEntity.ok(allPosts);
+    public ResponseEntity<Page<PostResponse>> getAllPosts(Pageable pageable) {
+//        List<PostResponse> allPosts = postService.getAllPosts();
+        Page<PostResponse> postspage = postService.getAllPosts(pageable);
+        return ResponseEntity.ok(postspage);
     }
 
     /**
@@ -72,8 +74,8 @@ public class PostController {
      * 게시물 삭제
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, Principal principal) {
+        postService.deletePost(id, principal);
 
         return ResponseEntity.noContent().build();
     }
