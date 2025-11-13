@@ -4,7 +4,6 @@ package com.example.board.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -25,8 +24,17 @@ public class Post {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    // 게시물 생성 메서드
+    public static Post create(String title, String content, Member member) {
+        Post post = new Post();
+        post.title = title;
+        post.content = content;
+        post.setMember(member);
+        return post;
+    }
+
     // 게시물 업데이트 메서드
-    public void updatePost(String newTitle, String newContent) {
+    public void update(String newTitle, String newContent) {
 
         // null 값 처리
         if (newTitle != null && !newTitle.isBlank()) {

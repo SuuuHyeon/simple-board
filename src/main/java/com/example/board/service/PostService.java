@@ -7,16 +7,15 @@ import com.example.board.dto.PostResponse;
 import com.example.board.dto.PostUpdateRequest;
 import com.example.board.repository.MemberRepository;
 import com.example.board.repository.PostRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,7 +24,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
-    private final ModelMapper modelMapper;
 
     /**
      * 게시물 생성
@@ -39,10 +37,7 @@ public class PostService {
                 () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
         );
 
-        // modelMapper 적용
-        Post post = modelMapper.map(request, Post.class);
-        // member 필드가 없으므로 따로 주입
-        post.setMember(member);
+        Post post = Post.create(request.getTitle(), request.getContent(), member);
 
         // db 저장
         Post savedPost = postRepository.save(post);
@@ -54,6 +49,7 @@ public class PostService {
     /**
      * 게시물 조회 (단일)
      */
+    @Transactional(readOnly = true)
     public PostResponse getPostById(Long id) {
         // 엔티티 조회
         Post post = postRepository.findById(id).orElseThrow(
@@ -90,7 +86,7 @@ public class PostService {
         //  JPA의 변경 감지 기능으로 자동으로 저장됨 (save 안 해도 됨)
 
         // 수정 메서드 호출
-        post.updatePost(request.getTitle(), request.getContent());
+        post.update(request.getTitle(), request.getContent());
 
         // JPA 변경 감지로 save 할 필요 없음
 

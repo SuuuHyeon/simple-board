@@ -9,6 +9,7 @@ import com.example.board.dto.TokenResponse;
 import com.example.board.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.security.Principal;
 
+@Slf4j
 @RestController
 @RequestMapping("/members")
 @RequiredArgsConstructor
@@ -43,6 +45,8 @@ public class MemberController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody MemberLoginRequest request) {
         TokenResponse tokenResponse = memberService.login(request);
+
+        log.info("accessToken: {}, refreshToken: {}", tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 
         return ResponseEntity.ok(tokenResponse);
     }

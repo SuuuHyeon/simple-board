@@ -39,8 +39,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
 
                                 /// 임시로 모두 허용
+//                              해당 주소는 열어주기
                                 auth.requestMatchers(
-//                                      해당 주소는 열어주기
+                                                "/",                // 루트 (http://localhost:8080/)
+                                                "/index.html",    // 메인 HTML
+                                                "/app.js",        // 메인 JS
+                                                "/style.css",     // 메인 CSS
                                                 "/members/login",
                                                 "/members/signup",
                                                 "/members/reissue",
